@@ -1,6 +1,6 @@
 ---
 - name: "Apply the jenkins role to the jenkins nodes"
-  hosts: jenkins
+  hosts: vagrant
   become: yes
   roles:
     - jenkins

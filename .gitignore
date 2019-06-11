@@ -107,3 +107,4 @@ DerivedData/
 *.class
 
 *.retry
+.vagrant
