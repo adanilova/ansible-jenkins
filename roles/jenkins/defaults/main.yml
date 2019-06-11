@@ -1,0 +1,23 @@
+firewalld: "8085"
+
+jenkins:
+  user:
+    name: jenkins
+    group: jenkins
+    shell: /sbin/nologin
+  group:
+    name: jenkins
+  home:
+
+packages:
+  - java-1.8.0-openjdk
+  - wget
+
+key_list:
+  - "https://pkg.jenkins.io/redhat-stable/jenkins.io.key"
+
+repo_list:
+  - "http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo"
+
+package_list:
+  - jenkins

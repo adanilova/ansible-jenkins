@@ -1,0 +1,65 @@
+---
+- name: Install a list of packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  tags:
+    - install_packages
+
+# - name: Create "{{ jenkins.group.name }}" group
+#   group:
+#     name: "{{ jenkins.group.name }}"
+#     state: present
+#   tags:
+#     - create_group_and_user
+#
+# - name: Create "{{ jenkins.user.name }}" user
+#   user:
+#     name: "{{ jenkins.user.name }}"
+#     comment: "jenkins User"
+#     group: "{{ jenkins.user.group }}"
+#     shell: "{{ jenkins.user.shell }}"
+#     state: present
+#   tags:
+#     - create_group_and_user
+
+- name: Download jenkins.repo
+  get_url:
+    url: "{{ item }}"
+    dest: /etc/yum.repos.d/jenkins.repo
+  with_items: "{{ repo_list }}"
+
+- name: Import Jenkins CI key
+  rpm_key:
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ key_list }}"
+
+- name: Install Jenkins
+  yum:
+    name: "{{ package_list }}"
+    state: present
+
+- name: Configure Jenkins Port
+  lineinfile: dest=/etc/sysconfig/jenkins regexp=^JENKINS_PORT= line=JENKINS_PORT={{ firewalld }}
+
+- name: Open Firewall ports in RedHat/CentOS 7
+  firewalld:
+    immediate: yes
+    port: "{{ item }}/tcp"
+    state: enabled
+    permanent: yes
+  when: (ansible_distribution == "RedHat" or ansible_distribution == "CentOS") and ansible_distribution_major_version == "7"
+  with_items: "{{ firewalld }}"
+  tags:
+    - firewall
+
+- name: Restart & Enable Jenkins
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: true
+
+- name: Waiting for jenkins to restart
+  pause:
+    minutes: 1

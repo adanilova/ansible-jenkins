@@ -1,0 +1,5 @@
+---
+- name: Configuration
+  include: 01-configuration.yml
+  become: yes
+  tags: jenkins
