@@ -47,7 +47,7 @@
     line: JENKINS_PORT={{ firewalld }}
 
 - name: Configure Jenkins Home
-  lifeline:
+  lineinfile:
     dest: /etc/sysconfig/jenkins
     regexp: ^JENKINS_HOME=
     line: JENKINS_HOME={{ jenkins.home }}
