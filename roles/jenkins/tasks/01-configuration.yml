@@ -23,19 +23,19 @@
 #   tags:
 #     - create_group_and_user
 
-- name: Download jenkins.repo
+- name: Configuring repo
   get_url:
-    url: "{{ item }}"
-    dest: /etc/yum.repos.d/jenkins.repo
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
   with_items: "{{ repo_list }}"
 
-- name: Import Jenkins CI key
+- name: Import key
   rpm_key:
     key: "{{ item }}"
     state: present
   with_items: "{{ key_list }}"
 
-- name: Install Jenkins
+- name: Install
   yum:
     name: "{{ package_list }}"
     state: present
@@ -43,6 +43,24 @@
 - name: Configure Jenkins Port
   lineinfile: dest=/etc/sysconfig/jenkins regexp=^JENKINS_PORT= line=JENKINS_PORT={{ firewalld }}
 
+- name: Ensure that firewalld is installed
+  yum:
+    name: firewalld
+    state: present
+  when: ansible_distribution_major_version == "7"
+  tags:
+    - firewall
+
+- name: Enable firewalld
+  systemd:
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+    masked : no
+    name: firewalld
+  tags:
+    - firewall
+    
 - name: Open Firewall ports in RedHat/CentOS 7
   firewalld:
     immediate: yes

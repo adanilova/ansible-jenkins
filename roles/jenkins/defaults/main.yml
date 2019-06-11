@@ -12,12 +12,18 @@ jenkins:
 packages:
   - java-1.8.0-openjdk
   - wget
+  - http://vault.centos.org/centos/7.3.1611/extras/x86_64/Packages/container-selinux-2.9-4.el7.noarch.rpm
 
 key_list:
   - "https://pkg.jenkins.io/redhat-stable/jenkins.io.key"
+  - "https://download.docker.com/linux/centos/gpg"
 
 repo_list:
-  - "http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo"
+  - url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+  - url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
 
 package_list:
   - jenkins
+  - docker-ce
