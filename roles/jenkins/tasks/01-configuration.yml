@@ -41,7 +41,16 @@
     state: present
 
 - name: Configure Jenkins Port
-  lineinfile: dest=/etc/sysconfig/jenkins regexp=^JENKINS_PORT= line=JENKINS_PORT={{ firewalld }}
+  lineinfile:
+    dest: /etc/sysconfig/jenkins
+    regexp: ^JENKINS_PORT=
+    line: JENKINS_PORT={{ firewalld }}
+
+- name: Configure Jenkins Home
+  lifeline:
+    dest: /etc/sysconfig/jenkins
+    regexp: ^JENKINS_HOME=
+    line: JENKINS_HOME={{ jenkins.home }}
 
 - name: Ensure that firewalld is installed
   yum:
@@ -60,7 +69,7 @@
     name: firewalld
   tags:
     - firewall
-    
+
 - name: Open Firewall ports in RedHat/CentOS 7
   firewalld:
     immediate: yes

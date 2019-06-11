@@ -7,7 +7,7 @@ jenkins:
     shell: /sbin/nologin
   group:
     name: jenkins
-  home:
+  home: /var/lib/jenkins
 
 packages:
   - java-1.8.0-openjdk
