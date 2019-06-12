@@ -17,7 +17,9 @@ Requirements
 Role Variables
 ---------------
 *General variables*
+
 *path:/ansible-jenkins/roles/jenkins/defaults/main.yml*
+
 | Name              | Default Value       |
 |-----------------------|---------------------|
 | `jenkins_port` | `8085` |
