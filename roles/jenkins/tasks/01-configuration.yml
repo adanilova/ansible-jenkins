@@ -6,19 +6,19 @@
   tags:
     - install_packages
 
-- name: Create "{{ jenkins.group.name }}" group
+- name: Create "{{ jenkins_group }}" group
   group:
-    name: "{{ jenkins.group.name }}"
+    name: "{{ jenkins_group }}"
     state: present
   tags:
     - create_group_and_user
 
-- name: Create "{{ jenkins.user.name }}" user
+- name: Create "{{ jenkins_user }}" user
   user:
-    name: "{{ jenkins.user.name }}"
+    name: "{{ jenkins_user }}"
     comment: "jenkins User"
-    group: "{{ jenkins.user.group }}"
-    shell: "{{ jenkins.user.shell }}"
+    group: "{{ jenkins_group }}"
+    shell: "{{ jenkins_shell }}"
     state: present
   tags:
     - create_group_and_user
@@ -35,10 +35,13 @@
     state: present
   with_items: "{{ key_list }}"
 
-- name: Install
+- name: Install Jenkins/Docker package
   yum:
     name: "{{ package_list }}"
+    update_cache: yes
     state: present
+  notify:
+    - restart docker
 
 - name: Add "{{ ansible_user }}" and jenkins users to docker group
   user:
@@ -46,7 +49,6 @@
     groups: docker
     append: yes
   with_items: "{{ users }}"
-  tags: test
 
 - name: Configure Jenkins
   lineinfile:
@@ -54,6 +56,30 @@
     line: "{{ item.line }}"
     dest: "{{ item.dest }}"
   with_items: "{{ conf_parametr }}"
+  notify:
+    - restart jenkins
+
+- name: Create tomcat job dir
+  file:
+    path: "{{ tomcat_dir }}"
+    state: directory
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    recurse: yes
+  tags: test
+
+- name: Updating config.xml
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0755
+    force: yes
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+  with_items: "{{ conf_list }}"
+  notify:
+    - restart jenkins
+  tags: test
 
 - name: Ensure that firewalld is installed
   yum:
@@ -80,12 +106,15 @@
     state: enabled
     permanent: yes
   when: (ansible_distribution == "RedHat" or ansible_distribution == "CentOS") and ansible_distribution_major_version == "7"
-  with_items: "{{ firewalld }}"
-  notify:
-    - restart jenkins
-    - restart docker
+  with_items: "{{ jenkins_port }}"
   tags:
     - firewall
+
+- name: Restart & Enable Jenkins
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: true
 
 - name: Waiting for jenkins to restart
   pause:

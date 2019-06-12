@@ -3,3 +3,8 @@
   include: 01-configuration.yml
   become: yes
   tags: jenkins
+
+- name: Install plugins
+  include: 02-plugins.yml
+  become: yes
+  tags: plugins

@@ -1,22 +1,20 @@
-firewalld: "8085"
+jenkins_port: "8085"
 
-jenkins:
-  user:
-    name: jenkins
-    group: jenkins
-    shell: /bin/sh
-  group:
-    name: jenkins
-  home: /var/lib/jenkins
+jenkins_user: jenkins
+jenkins_group: jenkins
+jenkins_shell: /bin/sh
+jenkins_home: /var/lib/jenkins
+tomcat_dir: "{{ jenkins_home }}/jobs/mytomcat"
 
 users:
   - "{{ ansible_user }}"
-  - jenkins
+  - "{{ jenkins_user }}"
 
 packages:
   - java-1.8.0-openjdk
   - wget
   - http://vault.centos.org/centos/7.3.1611/extras/x86_64/Packages/container-selinux-2.9-4.el7.noarch.rpm
+  - git
 
 key_list:
   - "https://pkg.jenkins.io/redhat-stable/jenkins.io.key"
@@ -28,28 +26,34 @@ repo_list:
   - url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docer-ce.repo
 
+jar_list:
+  - url:  http://localhost:8085/jnlpJars/jenkins-cli.jar
+    dest: "{{ jenkins_home }}/plugins"
+
 package_list:
-  - jenkins
-  - docker-ce
-soft:
-  - jenkins
-  - docker
+ - jenkins
+ - docker-ce
 
 conf_parametr:
   - regexp: ^JENKINS_HOME=
-    line: JENKINS_HOME={{ jenkins.home }}
+    line: JENKINS_HOME={{ jenkins_home }}
     dest: /etc/sysconfig/jenkins
   - regexp: ^JENKINS_PORT=
-    line: JENKINS_PORT={{ firewalld }}
+    line: JENKINS_PORT={{ jenkins_port }}
     dest: /etc/sysconfig/jenkins
   - regexp: ^JENKINS_JAVA_OPTIONS=
     line: JENKINS_JAVA_OPTIONS= -Djenkins.install.runSetupWizard=false
     dest: /etc/sysconfig/jenkins
 
+conf_list:
+  - src: jenkins-config.xml
+    dest: "{{ jenkins_home }}/config.xml"
+  - src: job-config.xml
+    dest: "{{ tomcat_dir }}/config.xml"
+
 plugins:
-  - docker-workflow
-  - git
   - workflow-aggregator
+  - git
 
 jenkins_url_prefix: ""
 jenkins_admin_password_file: "{{ jenkins.home}}/secrets/initialAdminPassword"
