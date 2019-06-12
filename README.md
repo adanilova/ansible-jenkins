@@ -1,6 +1,6 @@
 Ansible Role: Jenkins CI
 =====================
-Installs Jenkins CI and Docker with pipeline support on RHEL/CentOS servers. Also install the jenkins-cli.jar and plagins for jenkins. No authorization requared, no manual configuration needed.
+Installs Jenkins CI and Docker with pipeline support on RHEL/CentOS servers. Also install the jenkins-cli.jar and plugins for jenkins. No authorization required, no manual configuration needed.
 Add new jobs to: roles/jenkins/files/
 
 Dependencies
@@ -63,6 +63,6 @@ Host vagrant 192.168.13.13
 * Run `vagrant up`
 * Go to Jenkins UI: http://192.168.13.13:8085/ and run the build for `mytomcat`
 * Test your application: http://192.168.13.13:8080
-* Jenkinsfile and Dockerfile a [here](https://github.com/adanilova/tomcat-app)
+* Jenkinsfile and Dockerfile are located here [here](https://github.com/adanilova/tomcat-app)
 
 This role was created in 2019 by [Anastasia Danilova](https://www.linkedin.com/in/anastasia-danilova-1b7966101/)
