@@ -42,9 +42,6 @@ Go
 ```sh
 $ ansible-playbook playbook.yml -i inventories/test/hosts
 ```
-Author Information
----------------
-This role was created in 2019 [Anastasia Danilova](https://www.linkedin.com/in/anastasia-danilova-1b7966101/).
 
 Vagrant
 ---------------
@@ -63,7 +60,7 @@ Host vagrant 192.168.13.13
 ```
 * Run `vagrant up`
 * Go to Jenkins UI: http://192.168.13.13:8085/ and run the build for `mytomcat`
-* Test your application: http://192.168.13.13:8085/sample
+* Test your application: http://192.168.13.13:8080
 * Jenkinsfile and Dockerfile a [here](https://github.com/adanilova/tomcat-app)
 
 This role was created in 2019 by [Anastasia Danilova](https://www.linkedin.com/in/anastasia-danilova-1b7966101/)
