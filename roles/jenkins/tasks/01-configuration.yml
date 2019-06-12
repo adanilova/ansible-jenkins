@@ -18,7 +18,6 @@
     name: "{{ jenkins_user }}"
     comment: "jenkins User"
     group: "{{ jenkins_group }}"
-    shell: "{{ jenkins_shell }}"
     state: present
   tags:
     - create_group_and_user

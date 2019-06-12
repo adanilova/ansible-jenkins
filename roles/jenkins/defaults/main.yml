@@ -2,7 +2,6 @@ jenkins_port: "8085"
 
 jenkins_user: jenkins
 jenkins_group: jenkins
-jenkins_shell: /bin/sh
 jenkins_home: /var/lib/jenkins
 tomcat_dir: "{{ jenkins_home }}/jobs/mytomcat"
 
@@ -27,7 +26,7 @@ repo_list:
     dest: /etc/yum.repos.d/docer-ce.repo
 
 jar_list:
-  - url:  http://localhost:8085/jnlpJars/jenkins-cli.jar
+  - url:  "http://localhost:{{ jenkins_port }}/jnlpJars/jenkins-cli.jar"
     dest: "{{ jenkins_home }}/plugins"
 
 package_list:
