@@ -1,21 +1,69 @@
-# ansible-jenkins
+Ansible Role: Jenkins CI
+=====================
+Installs Jenkins CI and Docker with pipeline support on RHEL/CentOS servers. Also install the jenkins-cli.jar and plagins for jenkins. No authorization requared, no manual configuration needed.
+Add new jobs to: roles/jenkins/files/
 
-Assignment - TWO
+Dependencies
+---------------
+Ansible >= 2.0
 
-- Create an Ansible automation that deploys inside a Vagrant box the following:
-    - Jenkins server
-        - It don't need to have user or password
-        - it needs to be running at 8085
+Requirements
+---------------
+  - java-1.8.0-openjdk
+  - wget
+  - http://vault.centos.org/centos/7.3.1611/extras/x86_64/Packages/container-selinux-2.9-4.el7.noarch.rpm
+  - git
 
-    - Create a pipeline using jenkinsfile that builds a docker image to run a sample war - (use this: https://tomcat.apache.org/tomcat-8.0-
-doc/appdev/sample/ )
-        - Based in a second repository
-        - Running inside of  the Jenkins server implemented before
-        - This application doesn't need to run, but the pipeline needs
+Role Variables
+---------------
+*General variables*
+*path:/ansible-jenkins/roles/jenkins/defaults/main.yml*
+| Name              | Default Value       | Description          |
+|-----------------------|---------------------|----------------------|
+| `jenkins_port` | `8085` | Self Explanatory |
+|`jenkins_user` |jenkins|Self Explanatory|
+|`jenkins_group` |jenkins|Self Explanatory|
+|`jenkins_home` |/var/lib/jenkins|Self Explanatory|
+|`tomcat_dir` |/var/lib/jenkins/jobs/mytomcat|Self Explanatory|
 
-- Observations for both exercises:
-    - Be free to do one of the exercises, HELM or Ansible
-    - Try to use the best practices and simple tools
-    - Make it in a way that's simple to implement
-    - Write a clear README.md for both repositories
-    - Share with us in a public GitHub/bitbucket
+Example Playbook
+---------------
+```yaml
+- name: "Apply the jenkins role to the jenkins nodes"
+  hosts: vagrant
+  become: yes
+  roles:
+    - jenkins
+  tags:
+    - jenkins
+```
+Go
+---------------
+```sh
+$ ansible-playbook playbook.yml -i inventories/test/hosts
+```
+Author Information
+---------------
+This role was created in 2019 [Anastasia Danilova](https://www.linkedin.com/in/anastasia-danilova-1b7966101/).
+
+Vagrant
+---------------
+To use Vagrantfile:
+* Create new `ssh-key`, name it `vagrant` and put it to `~/.ssh/` directory
+```sh
+$ ssh-keygen
+```
+
+* Add information about `key`, `vagrant user` and `vagrant host` to `~/.ssh/config`
+```sh
+Host vagrant 192.168.13.13
+    HostName 192.168.13.13
+    IdentityFile ~/.ssh/vagrant
+    User vagrant
+```
+* Run `vagrant up`
+* Go to Jenkins UI: http://192.168.13.13:8085/ and run the build for `mytomcat`
+* Test your application: http://192.168.13.13:8085/sample
+* Jenkinsfile and Dockerfile a [here](https://github.com/adanilova/tomcat-app)
+
+This role was created in 2019 by [Anastasia Danilova](https://www.linkedin.com/in/anastasia-danilova-1b7966101/)
