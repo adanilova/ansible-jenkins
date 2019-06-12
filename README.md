@@ -18,13 +18,13 @@ Role Variables
 ---------------
 *General variables*
 *path:/ansible-jenkins/roles/jenkins/defaults/main.yml*
-| Name              | Default Value       | Description          |
-|-----------------------|---------------------|----------------------|
-| `jenkins_port` | `8085` | Self Explanatory |
-|`jenkins_user` |jenkins|Self Explanatory|
-|`jenkins_group` |jenkins|Self Explanatory|
-|`jenkins_home` |/var/lib/jenkins|Self Explanatory|
-|`tomcat_dir` |/var/lib/jenkins/jobs/mytomcat|Self Explanatory|
+| Name              | Default Value       |
+|-----------------------|---------------------|
+| `jenkins_port` | `8085` |
+|`jenkins_user` | jenkins |
+|`jenkins_group` | jenkins |
+|`jenkins_home` | /var/lib/jenkins |
+|`tomcat_dir` | /var/lib/jenkins/jobs/mytomcat |
 
 Example Playbook
 ---------------
