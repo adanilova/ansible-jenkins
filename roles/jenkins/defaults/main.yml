@@ -1,0 +1,63 @@
+jenkins_port: "8085"
+
+jenkins_user: jenkins
+jenkins_group: jenkins
+jenkins_home: /var/lib/jenkins
+tomcat_dir: "{{ jenkins_home }}/jobs/mytomcat"
+
+users:
+  - "{{ ansible_user }}"
+  - "{{ jenkins_user }}"
+
+packages:
+  - java-1.8.0-openjdk
+  - wget
+  - http://vault.centos.org/centos/7.3.1611/extras/x86_64/Packages/container-selinux-2.9-4.el7.noarch.rpm
+  - git
+
+key_list:
+  - "https://pkg.jenkins.io/redhat-stable/jenkins.io.key"
+  - "https://download.docker.com/linux/centos/gpg"
+
+repo_list:
+  - url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+  - url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+jar_list:
+  - url:  "http://localhost:{{ jenkins_port }}/jnlpJars/jenkins-cli.jar"
+    dest: "{{ jenkins_home }}/plugins"
+
+package_list:
+ - jenkins
+ - docker-ce
+
+conf_parametr:
+  - regexp: ^JENKINS_HOME=
+    line: JENKINS_HOME={{ jenkins_home }}
+    dest: /etc/sysconfig/jenkins
+  - regexp: ^JENKINS_PORT=
+    line: JENKINS_PORT={{ jenkins_port }}
+    dest: /etc/sysconfig/jenkins
+  - regexp: ^JENKINS_JAVA_OPTIONS=
+    line: JENKINS_JAVA_OPTIONS= -Djenkins.install.runSetupWizard=false
+    dest: /etc/sysconfig/jenkins
+
+conf_list:
+  - src: jenkins-config.xml
+    dest: "{{ jenkins_home }}/config.xml"
+  - src: job-config.xml
+    dest: "{{ tomcat_dir }}/config.xml"
+
+plugins:
+  - workflow-aggregator
+  - git
+
+jenkins_url_prefix: ""
+jenkins_admin_password_file: "{{ jenkins.home}}/secrets/initialAdminPassword"
+jenkins_updates_url: https://updates.jenkins.io
+jenkins_plugins_state: present
+jenkins_plugin_updates_expiration: 86400
+jenkins_plugin_timeout: 30
+jenkins_plugins_install_dependencies: true

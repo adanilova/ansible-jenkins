@@ -1,0 +1,120 @@
+---
+- name: Install a list of packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  tags:
+    - install_packages
+
+- name: Create "{{ jenkins_group }}" group
+  group:
+    name: "{{ jenkins_group }}"
+    state: present
+  tags:
+    - create_group_and_user
+
+- name: Create "{{ jenkins_user }}" user
+  user:
+    name: "{{ jenkins_user }}"
+    comment: "jenkins User"
+    group: "{{ jenkins_group }}"
+    state: present
+  tags:
+    - create_group_and_user
+
+- name: Configuring repo
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items: "{{ repo_list }}"
+
+- name: Import key
+  rpm_key:
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ key_list }}"
+
+- name: Install Jenkins/Docker package
+  yum:
+    name: "{{ package_list }}"
+    update_cache: yes
+    state: present
+  notify:
+    - restart docker
+
+- name: Add "{{ ansible_user }}" and jenkins users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  with_items: "{{ users }}"
+
+- name: Configure Jenkins
+  lineinfile:
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    dest: "{{ item.dest }}"
+  with_items: "{{ conf_parametr }}"
+  notify:
+    - restart jenkins
+
+- name: Create tomcat job dir
+  file:
+    path: "{{ tomcat_dir }}"
+    state: directory
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    recurse: yes
+  tags: test
+
+- name: Updating config.xml
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0755
+    force: yes
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+  with_items: "{{ conf_list }}"
+  notify:
+    - restart jenkins
+  tags: test
+
+- name: Ensure that firewalld is installed
+  yum:
+    name: firewalld
+    state: present
+  when: ansible_distribution_major_version == "7"
+  tags:
+    - firewall
+
+- name: Enable firewalld
+  systemd:
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+    masked : no
+    name: firewalld
+  tags:
+    - firewall
+
+- name: Open Firewall ports in RedHat/CentOS 7
+  firewalld:
+    immediate: yes
+    port: "{{ item }}/tcp"
+    state: enabled
+    permanent: yes
+  when: (ansible_distribution == "RedHat" or ansible_distribution == "CentOS") and ansible_distribution_major_version == "7"
+  with_items: "{{ jenkins_port }}"
+  tags:
+    - firewall
+
+- name: Restart & Enable Jenkins
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: true
+
+- name: Waiting for jenkins to restart
+  pause:
+    minutes: 1

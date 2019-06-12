@@ -1,0 +1,26 @@
+---
+- name: Add jar file
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+    mode: 0775
+  with_items: "{{ jar_list }}"
+  register: jarfile_get
+  until: "'OK' in jarfile_get.msg or '304' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+  retries: 10
+  delay: 10
+  check_mode: false
+
+- name: Install plugins
+  shell: |
+        java -jar jenkins-cli.jar -s http://127.0.0.1:8085/ install-plugin {{ item }}
+  args:
+    chdir: "{{ jenkins_home }}/plugins"
+  become_user: "{{ jenkins_user }}"
+  with_items: "{{ plugins }}"
+  retries: 10
+  delay: 10
+  notify:
+    - restart jenkins
