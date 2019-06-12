@@ -4,10 +4,14 @@ jenkins:
   user:
     name: jenkins
     group: jenkins
-    shell: /sbin/nologin
+    shell: /bin/sh
   group:
     name: jenkins
   home: /var/lib/jenkins
+
+users:
+  - "{{ ansible_user }}"
+  - jenkins
 
 packages:
   - java-1.8.0-openjdk
@@ -27,3 +31,30 @@ repo_list:
 package_list:
   - jenkins
   - docker-ce
+soft:
+  - jenkins
+  - docker
+
+conf_parametr:
+  - regexp: ^JENKINS_HOME=
+    line: JENKINS_HOME={{ jenkins.home }}
+    dest: /etc/sysconfig/jenkins
+  - regexp: ^JENKINS_PORT=
+    line: JENKINS_PORT={{ firewalld }}
+    dest: /etc/sysconfig/jenkins
+  - regexp: ^JENKINS_JAVA_OPTIONS=
+    line: JENKINS_JAVA_OPTIONS= -Djenkins.install.runSetupWizard=false
+    dest: /etc/sysconfig/jenkins
+
+plugins:
+  - docker-workflow
+  - git
+  - workflow-aggregator
+
+jenkins_url_prefix: ""
+jenkins_admin_password_file: "{{ jenkins.home}}/secrets/initialAdminPassword"
+jenkins_updates_url: https://updates.jenkins.io
+jenkins_plugins_state: present
+jenkins_plugin_updates_expiration: 86400
+jenkins_plugin_timeout: 30
+jenkins_plugins_install_dependencies: true

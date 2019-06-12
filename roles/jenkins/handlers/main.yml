@@ -1,5 +1,10 @@
 ---
-- name: start elasticsearch
+- name: restart jenkins
   service:
-    name: elasticsearch.service
-    state: started
+     name: jenkins
+     state: restarted
+
+- name: restart docker
+  service:
+     name: docker 
+     state: restarted
